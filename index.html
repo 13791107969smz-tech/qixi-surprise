@@ -1,143 +1,281 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#050611">
-<title>August 19 · 七夕惊喜</title>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050611;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
-body{touch-action:none}
-canvas{position:fixed;inset:0;width:100%;height:100%}
-.window{
- position:fixed;left:50%;top:50%;z-index:10;width:min(87vw,370px);
- transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.13);
- border-radius:22px;overflow:hidden;background:rgba(13,14,28,.92);
- box-shadow:0 28px 100px rgba(0,0,0,.7),0 0 60px rgba(115,92,190,.12);
- backdrop-filter:blur(22px);transition:opacity 1s,transform 1s,filter 1s;
-}
-.window.hide{opacity:0;transform:translate(-50%,-50%) scale(.72);filter:blur(14px);pointer-events:none}
-.top{height:43px;display:flex;align-items:center;padding:0 15px;border-bottom:1px solid rgba(255,255,255,.07)}
-.dots{display:flex;gap:7px}.dot{width:9px;height:9px;border-radius:50%;background:#363746}
-.status{margin:auto;transform:translateX(-14px);font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.28)}
-.main{text-align:center;padding:34px 25px 30px}
-.moon{font-size:42px;color:rgba(255,255,255,.86);line-height:1;filter:drop-shadow(0 0 18px rgba(180,170,255,.35));animation:float 3s ease-in-out infinite}
-h1{font-size:21px;font-weight:400;letter-spacing:6px;color:rgba(255,255,255,.91);margin:17px 0 11px}
-.desc{font-size:12px;letter-spacing:2px;color:rgba(255,255,255,.34);margin:0 0 27px}
-.open{
- height:50px;width:100%;border-radius:13px;border:1px solid rgba(255,255,255,.14);
- background:linear-gradient(135deg,rgba(255,255,255,.11),rgba(255,255,255,.035));
- color:rgba(255,255,255,.78);font-size:13px;letter -spacing:5px;
- display:flex;align-items:center;justify-content:center;user-select:none;
-}
-.open:active{transform:scale(.97);background:rgba(255,255,255,.16)}
-.tiny{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.18);margin-top:14px}
-#message{position:fixed;z-index:8;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 2.2s}
-#message.show{opacity:1}
-.name{font-size:clamp(32px,9vw,56px);letter-spacing:10px;color:#fff;text-shadow:0 0 16px rgba(255,110,165,.95),0 0 48px rgba(255,40,130,.7)}
-.wish{font-size:clamp(19px,5.5vw,29px);letter-spacing:8px;margin-top:20px;color:rgba(255,255,255,.94);text-shadow:0 0 24px rgba(255,120,185,.9)}
-.sub{font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.38);margin-top:29px}
-.tap{position:fixed;z-index:9;bottom:9%;left:50%;transform:translateX(-50%);opacity:0;color:rgba(255,255,255,.38);font-size:11px;letter-spacing:3px;transition:opacity 1.5s}
-.tap.show{opacity:1}
-@keyframes float{50%{transform:translateY(-6px) scale(1.04);opacity:.68}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>七夕惊喜 - 给方子颜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #080810;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .scene {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .scene.active {
+            display: block;
+            opacity: 1;
+        }
+        .time-badge {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        .phone-notice {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-left: 4px solid #ff4b5c;
+        }
+        .phone-title {
+            font-size: 0.85rem;
+            color: #ff85a2;
+            margin-bottom: 5px;
+        }
+        .phone-body {
+            font-size: 1.05rem;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff4b5c, #ff758c);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 75, 92, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 15px;
+        }
+        .btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(255, 75, 92, 0.6);
+        }
+        .story-text {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: #e0e0e0;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: rgba(255, 240, 243, 0.95);
+            color: #333;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: left;
+            line-height: 1.8;
+            margin: 15px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            font-size: 0.98rem;
+        }
+        .card-title {
+            color: #d63384;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .final-wish {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff4b5c;
+            text-shadow: 0 0 10px rgba(255, 75, 92, 0.8);
+            margin-top: 15px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
-<canvas id="c"></canvas>
 
-<div class="window" id="win">
- <div class="top"><div class="dots"><i class="dot"></i><i class="dot"></i><i class="dot"></i></div><div class="status">AUGUST 19 · 00:00</div></div>
- <div class="main">
-   <div class="moon">◐</div>
-   <h1>夜间模式</h1>
-   <p class="desc">检测到一条未读信息 · 01</p>
-   <div class="open" id="openBtn">查看</div>
-   <div class="tiny">内容似乎有点特别</div>
- </div>
-</div>
+    <canvas id="fireworksCanvas"></canvas>
 
-<div id="message">
- <div class="name">方子颜</div>
- <div class="wish">七夕快乐 ❤️</div>
- <div class="sub">愿每一个七夕，都有我陪着你</div>
-</div>
-<div class="tap" id="tap">轻触屏幕 · 让星星亮起来</div>
+    <div class="container">
+        <!-- 场景 1：深夜与消息 -->
+        <div class="scene active" id="scene1">
+            <div class="time-badge">2026 年 七夕零点 00:00</div>
+            <p style="color: #bbb; font-size: 0.95rem;">深夜，四周一片安静。</p>
+            <div class="phone-notice">
+                <div class="phone-title">💬 收到一条新消息</div>
+                <div class="phone-body">“睡了吗？看看窗外。”</div>
+            </div>
+            <p style="font-size: 0.9rem; color: #aaa; margin-top: 10px;">突然，窗外隐约传来了烟花升空绽放的声音……</p>
+            <button class="btn" onclick="goToScene(2)">拉开窗帘 ✨</button>
+        </div>
 
-<script>
-(function(){
-const c=document.getElementById('c'),ctx=c.getContext('2d');
-let W,H,dpr,stars=[],parts=[],rockets=[],started=false;
-function resize(){
- dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
- c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
- stars=Array.from({length:Math.min(230,Math.floor(W*H/4200))},()=>({
-  x:Math.random()*W,y:Math.random()*H,r:.2+Math.random()*1.35,a:Math.random(),d:.003+Math.random()*.014
- }));
-}
-addEventListener('resize',resize);resize();
+        <!-- 场景 2：窗外烟花与走来的男孩 -->
+        <div class="scene" id="scene2">
+            <div class="story-text">
+                你推开窗户，漆黑的夜空瞬间被漫天绚丽的烟花照亮。<br><br>
+                在漫天星光与璀璨的花火下，你看到那个熟悉的身影，正抱着一束精心准备的花，微笑着缓缓向你走来……
+            </div>
+            <button class="btn" onclick="goToScene(3)">接过花束并打开卡片 🌹</button>
+        </div>
 
-function burst(x,y,heart=false){
- const n=heart?1300:280;
- for(let i=0;i<n;i++){
-  const a=Math.random()*Math.PI*2; let dx,dy;
-  if(heart){
-   dx=16*Math.pow(Math.sin(a),3)/16;
-   dy=-(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))/16;
-   const k=(.25+Math.random()*.85)*8;
-   dx*=k;dy*=k;
-  }else{const s=.6+Math.random()*5.5;dx=Math.cos(a)*s;dy=Math.sin(a)*s}
-  parts.push({x:x+(Math.random()-.5)*3,y:y+(Math.random()-.5)*3,
-   vx:dx+(Math.random()-.5)*.55,vy:dy+(Math.random()-.5)*.55,
-   life:1,decay:.0035+Math.random()*.009,size:.5+Math.random()*2.3});
- }
-}
-function launch(){
- rockets.push({x:W*(.1+Math.random()*.8),y:H+12,vx:(Math.random()-.5)*1.3,vy:-8-Math.random()*5});
-}
-function frame(){
- ctx.fillStyle='rgba(5,6,17,.19)';ctx.fillRect(0,0,W,H);
- for(const s of stars){
-  s.a+=s.d;if(s.a>1||s.a<0)s.d*=-1;
-  ctx.fillStyle='rgba(255,255,255,'+(.16+s.a*.68)+')';
-  ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,7);ctx.fill();
- }
- for(let i=rockets.length-1;i>=0;i--){
-  const r=rockets[i];r.x+=r.vx;r.y+=r.vy;r.vy+=.075;
-  ctx.fillStyle='rgba(255,190,220,.9)';ctx.beginPath();ctx.arc(r.x,r.y,2,0,7);ctx.fill();
-  if(r.vy>-1){burst(r.x,r.y,false);rockets.splice(i,1)}
- }
- for(let i=parts.length-1;i>=0;i--){
-  const p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vx*=.992;p.vy=p.vy*.992+.015;p.life-=p.decay;
-  ctx.fillStyle='rgba(255,'+(105+Math.random()*95)+','+(150+Math.random()*100)+','+Math.max(0,p.life)+')';
-  ctx.shadowBlur=10;ctx.shadowColor='rgba(255,70,150,.8)';
-  ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,7);ctx.fill();ctx.shadowBlur=0;
-  if(p.life<=0)parts.splice(i,1);
- }
- requestAnimationFrame(frame);
-}
-frame();
+        <!-- 场景 3：花中的卡片内容 -->
+        <div class="scene" id="scene3">
+            <div class="card">
+                <div class="card-title">致 方子颜：</div>
+                在这个平静而又特殊的夜晚，我想把所有的星光与温柔都送给你。<br><br>
+                谢谢你走进我的世界，让每一个平凡的日子都变得闪闪发光。未来的每一个四季，我都想陪你一起看遍所有的烟火。
+            </div>
+            <button class="btn" onclick="goToScene(4)">看 向 他 💖</button>
+        </div>
 
-function start(){
- if(started)return;started=true;
- document.getElementById('win').classList.add('hide');
- if(navigator.vibrate) navigator.vibrate(18);
- setTimeout(()=>{for(let i=0;i<9;i++)setTimeout(launch,i*330)},500);
- setTimeout(()=>burst(W/2,H*.46,true),3600);
- setTimeout(()=>document.getElementById('message').classList.add('show'),5000);
- setTimeout(()=>document.getElementById('tap').classList.add('show'),6000);
-}
-const btn=document.getElementById('openBtn');
-btn.addEventListener('click',start);
-btn.addEventListener('touchend',e=>{e.preventDefault();start()},{passive:false});
+        <!-- 场景 4：最终祝福 -->
+        <div class="scene" id="scene4">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🎆</div>
+            <div class="final-wish">祝方子颜七夕快乐！</div>
+            <p style="margin-top: 15px; color: #ddd; font-size: 0.95rem;">余生漫漫，爱意永不落幕。</p>
+        </div>
+    </div>
 
-addEventListener('pointerdown',e=>{
- if(started && e.target===c){
-  burst(e.clientX,e.clientY,false);
-  if(navigator.vibrate)navigator.vibrate(8);
- }
-});
-})();
-</script>
+    <script>
+        // 场景切换逻辑
+        function goToScene(sceneNumber) {
+            document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
+            const nextScene = document.getElementById(`scene${sceneNumber}`);
+            if (nextScene) {
+                nextScene.classList.add('active');
+            }
+            if (sceneNumber >= 2) {
+                startFireworks();
+            }
+            if (sceneNumber === 4) {
+                frequentFireworks();
+            }
+        }
+
+        // 烟花画布效果
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 1;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.015 + 0.008;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.05; // 重力
+                this.alpha -= this.decay;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        let particles = [];
+        let fireworkInterval = null;
+
+        function createExplosion(x, y) {
+            const colors = ['#ff4b5c', '#ff758c', '#ffea00', '#00f5d4', '#7b2cbf', '#ffffff'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function startFireworks() {
+            if (fireworkInterval) return;
+            fireworkInterval = setInterval(() => {
+                createExplosion(
+                    Math.random() * (width - 200) + 100,
+                    Math.random() * (height * 0.5) + 50
+                );
+            }, 800);
+        }
+
+        function frequentFireworks() {
+            if (fireworkInterval) clearInterval(fireworkInterval);
+            fireworkInterval = setInterval(() => {
+                createExplosion(
+                    Math.random() * width,
+                    Math.random() * (height * 0.6)
+                );
+            }, 300);
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(8, 8, 16, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
 </body>
 </html>
+
+
